@@ -39,11 +39,45 @@ return {
     -- enable servers that you already have installed without mason
     servers = {
       "gleam",
+      "basedpyright",
     },
     -- customize language server configuration options passed to `lspconfig`
     ---@diagnostic disable: missing-fields
     config = {
       -- clangd = { capabilities = { offsetEncoding = "utf-8" } },
+      basedpyright = {
+        before_init = function(_, config)
+          -- Find the Python executable in the project's virtual environment
+          local util = require "lspconfig.util"
+          local path = util.path
+          
+          -- Look for uv .venv first, then fallback to other venv patterns
+          local venv_paths = {
+            path.join(config.root_dir, ".venv", "bin", "python"),
+            path.join(config.root_dir, ".venv", "Scripts", "python.exe"),
+            path.join(config.root_dir, "venv", "bin", "python"),
+            path.join(config.root_dir, "venv", "Scripts", "python.exe"),
+          }
+          
+          for _, venv_python in ipairs(venv_paths) do
+            if vim.fn.executable(venv_python) == 1 then
+              config.settings.python.pythonPath = venv_python
+              break
+            end
+          end
+        end,
+        settings = {
+          python = {
+            analysis = {
+              autoImportCompletions = true,
+              typeCheckingMode = "standard",
+              autoSearchPaths = true,
+              useLibraryCodeForTypes = true,
+              stubPath = vim.fn.stdpath("data") .. "/lazy/python-type-stubs",
+            },
+          },
+        },
+      },
     },
     -- customize how language servers are attached
     handlers = {
