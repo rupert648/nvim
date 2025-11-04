@@ -66,6 +66,15 @@ return {
           function() require("telescope.builtin").lsp_workspace_symbols() end,
           desc = "Search Workspace Symbols",
         },
+        -- Copy file path to clipboard
+        ["<Leader>fy"] = {
+          function()
+            local path = vim.fn.expand("%:p")
+            vim.fn.setreg("+", path)
+            vim.notify("Copied path: " .. path, vim.log.levels.INFO)
+          end,
+          desc = "Copy file path to clipboard",
+        },
       },
       t = {
         -- setting a mapping to false will disable it
